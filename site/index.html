@@ -4,34 +4,341 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Static Site CI/CD + Monitoring — Portfolio Project</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+:root {
+  color-scheme: light dark;
+  --bg: #0b0f19;
+  --bg-elevated: #121828;
+  --border: rgba(148, 163, 184, 0.16);
+  --text: #e7ecf5;
+  --text-dim: #9aa5b8;
+  --accent: #7c9dff;
+  --accent-2: #34d1a4;
+  --danger: #f2637a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f7fb;
+    --bg-elevated: #ffffff;
+    --border: rgba(15, 23, 42, 0.08);
+    --text: #0f172a;
+    --text-dim: #5b6576;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.bg-glow {
+  position: fixed;
+  inset: -20% -10% auto -10%;
+  height: 60vh;
+  background: radial-gradient(60% 60% at 30% 20%, rgba(124, 157, 255, 0.35), transparent 70%),
+              radial-gradient(50% 50% at 80% 10%, rgba(52, 209, 164, 0.25), transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+header.hero, main, footer {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+header.hero {
+  padding-top: 5rem;
+  padding-bottom: 2.5rem;
+  text-align: left;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.1;
+  margin: 0 0 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  max-width: 620px;
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  margin: 0 0 2rem;
+}
+
+code {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  padding: 0.15em 0.45em;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  max-width: fit-content;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.status-card.status-live .status-dot { background: var(--accent-2); }
+.status-card.status-unknown .status-dot { background: var(--danger); animation: none; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.status-text { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.92rem; }
+.status-sub { color: var(--text-dim); font-size: 0.85rem; }
+
+main { padding-bottom: 3rem; }
+
+h2 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin: 3rem 0 1.5rem;
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.steps li {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+
+.step-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(124, 157, 255, 0.14);
+  color: var(--accent);
+  margin-bottom: 0.9rem;
+}
+
+.step-icon svg { width: 18px; height: 18px; }
+
+.steps h3 { font-size: 0.95rem; margin: 0 0 0.4rem; }
+.steps p { font-size: 0.88rem; color: var(--text-dim); margin: 0; }
+
+.stack-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stack-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.4rem;
+}
+
+.stack-card h3 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.stack-card p { margin: 0; color: var(--text-dim); font-size: 0.92rem; }
+
+.tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  background: rgba(148, 163, 184, 0.14);
+  border-radius: 999px;
+  padding: 0.2em 0.6em;
+}
+
+footer {
+  padding: 2rem 1.5rem 3rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 720px) {
+  .steps { grid-template-columns: 1fr 1fr; }
+  .stack-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .steps { grid-template-columns: 1fr; }
+  header.hero { padding-top: 3rem; }
+}
+
+</style>
 </head>
 <body>
-  <main>
-    <h1>Deployed by a CI/CD pipeline, not by hand.</h1>
-    <p>
-      This page is served from a private S3 bucket through CloudFront (OAC, HTTPS by default).
-      Every push to <code>main</code> runs <code>terraform fmt</code>, <code>validate</code>,
-      and <code>plan</code> in GitHub Actions; merges trigger <code>apply</code> plus a content
-      sync and a CloudFront cache invalidation.
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="hero">
+    <span class="eyebrow">AWS · Terraform · GitHub Actions</span>
+    <h1>Deployed by a pipeline.<br>Not by hand.</h1>
+    <p class="lede">
+      This page lives in a private S3 bucket, served through CloudFront over HTTPS, and shipped
+      here by a GitHub Actions workflow that runs <code>terraform plan</code> on every pull
+      request and <code>apply</code> on merge — no console clicks, no manual uploads.
     </p>
-    <section id="build-info">
-      <h2>Last deployment v2</h2>
-      <p>Loading build info…</p>
+
+    <div class="status-card" id="status-card" aria-live="polite">
+      <span class="status-dot" aria-hidden="true"></span>
+      <div class="status-text">
+        <strong>Checking deployment status…</strong>
+        <span class="status-sub">&nbsp;</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pipeline" aria-label="Deployment pipeline">
+      <h2>How this page got here</h2>
+      <ol class="steps">
+        <li>
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5.2v4.6l3.2 1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Push to <code>main</code></h3>
+          <p>A commit touching this folder triggers the workflow.</p>
+        </li>
+        <li>
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3v18M4 8h5M4 16h5M15 3l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Terraform plan &amp; apply</h3>
+          <p>Infra (bucket, CDN, alarms) is reconciled via a locked, remote-state apply.</p>
+        </li>
+        <li>
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 16.7V8.3L12 4l8 4.3v8.4L12 21l-8-4.3Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8.3 12 12l8-3.7M12 12v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Content synced to S3</h3>
+          <p><code>aws s3 sync</code> ships this exact HTML, then the CloudFront cache is invalidated.</p>
+        </li>
+        <li>
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 3 8v8l9 5 9-5V8l-9-5Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 8l9 5 9-5M12 13v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>Served to you</h3>
+          <p>Over HTTPS from the CloudFront edge closest to you — this request never touched S3 directly.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="stack" aria-label="Infrastructure">
+      <h2>What's running underneath</h2>
+      <div class="stack-grid">
+        <div class="stack-card">
+          <h3>S3 <span class="tag">storage</span></h3>
+          <p>Private bucket, no public access. CloudFront reaches it only via Origin Access Control.</p>
+        </div>
+        <div class="stack-card">
+          <h3>CloudFront <span class="tag">delivery</span></h3>
+          <p>Global CDN, free HTTPS on the default domain, SPA-style fallback routing.</p>
+        </div>
+        <div class="stack-card">
+          <h3>GitHub Actions <span class="tag">CI/CD</span></h3>
+          <p>OIDC federation to AWS — no long-lived access keys stored anywhere.</p>
+        </div>
+        <div class="stack-card">
+          <h3>CloudWatch + SNS <span class="tag">observability</span></h3>
+          <p>Alarms on 4xx/5xx error rate page an SNS topic if this site starts misbehaving.</p>
+        </div>
+      </div>
     </section>
   </main>
+
+  <footer>
+    <p>Part of a 3-project AWS + Terraform portfolio. Built to demonstrate IaC, not to stay pretty forever.</p>
+  </footer>
+
   <script>
+    function timeAgo(iso) {
+      const then = new Date(iso).getTime();
+      if (Number.isNaN(then)) return null;
+      const seconds = Math.max(0, Math.round((Date.now() - then) / 1000));
+      if (seconds < 60) return "just now";
+      const minutes = Math.round(seconds / 60);
+      if (minutes < 60) return minutes + " min ago";
+      const hours = Math.round(minutes / 60);
+      if (hours < 24) return hours + " hr ago";
+      return Math.round(hours / 24) + " days ago";
+    }
+
     fetch("build-info.json", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((info) => {
-        document.getElementById("build-info").innerHTML =
-          "<h2>Last deployment</h2>" +
-          "<p>Commit <code>" + info.commit + "</code> &middot; " +
-          "deployed " + info.deployed_at + " by GitHub Actions run #" + info.run_number + "</p>";
+        const card = document.getElementById("status-card");
+        const ago = timeAgo(info.deployed_at);
+        const shortSha = /^[0-9a-f]{7,40}$/i.test(info.commit) ? info.commit.slice(0, 7) : info.commit;
+
+        card.classList.add("status-live");
+        card.querySelector(".status-text strong").textContent = "Live — shipped by the pipeline";
+        card.querySelector(".status-sub").innerHTML =
+          "commit <code>" + shortSha + "</code>" +
+          (ago ? " &middot; " + ago : " &middot; " + info.deployed_at) +
+          " &middot; run #" + info.run_number;
       })
       .catch(() => {
-        document.querySelector("#build-info p").textContent =
-          "build-info.json not found yet — this page was uploaded manually, not via the pipeline.";
+        const card = document.getElementById("status-card");
+        card.classList.add("status-unknown");
+        card.querySelector(".status-text strong").textContent = "Uploaded manually";
+        card.querySelector(".status-sub").textContent =
+          "build-info.json not found — this copy wasn't shipped by the GitHub Actions workflow.";
       });
   </script>
 </body>
