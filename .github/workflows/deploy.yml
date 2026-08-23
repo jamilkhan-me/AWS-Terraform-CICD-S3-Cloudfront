@@ -3,12 +3,8 @@ name: Deploy static site
 on:
   push:
     branches: [main]
-    paths:
-      - "03-static-site-cicd-monitoring/**"
   pull_request:
     branches: [main]
-    paths:
-      - "03-static-site-cicd-monitoring/**"
 
 # Least privilege for the job itself: only request an OIDC token and read the repo checkout.
 # The actual AWS permissions are enforced by the IAM role's own policy (see bootstrap/), not by
@@ -16,10 +12,6 @@ on:
 permissions:
   id-token: write
   contents: read
-
-defaults:
-  run:
-    working-directory: 03-static-site-cicd-monitoring
 
 jobs:
   plan:
@@ -44,7 +36,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: 03-static-site-cicd-monitoring/tfplan
+          path: tfplan
           retention-days: 5
 
   apply:
