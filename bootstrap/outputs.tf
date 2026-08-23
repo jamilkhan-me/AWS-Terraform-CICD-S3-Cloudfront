@@ -8,5 +8,5 @@ output "state_lock_table_name" {
 
 output "github_actions_role_arn" {
   description = "Put this in a GitHub Actions repo secret named AWS_ROLE_ARN."
-  value       = aws_iam_role.github_actions.arn
+  value       = "arn:aws:iam::781008191503:role/github-oidc-role"
 }
