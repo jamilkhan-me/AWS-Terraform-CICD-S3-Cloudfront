@@ -1,0 +1,92 @@
+name: Deploy static site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "03-static-site-cicd-monitoring/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "03-static-site-cicd-monitoring/**"
+
+# Least privilege for the job itself: only request an OIDC token and read the repo checkout.
+# The actual AWS permissions are enforced by the IAM role's own policy (see bootstrap/), not by
+# anything in this file.
+permissions:
+  id-token: write
+  contents: read
+
+defaults:
+  run:
+    working-directory: 03-static-site-cicd-monitoring
+
+jobs:
+  plan:
+    name: terraform fmt / validate / plan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - run: terraform fmt -check -recursive
+      - run: terraform init
+      - run: terraform validate
+      - run: terraform plan -no-color -out=tfplan
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: 03-static-site-cicd-monitoring/tfplan
+          retention-days: 5
+
+  apply:
+    name: terraform apply + deploy site content
+    needs: plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: production # optional: require a manual approval gate in repo Settings > Environments
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - run: terraform init
+      - run: terraform apply -auto-approve
+
+      # Content lives outside Terraform state on purpose: infra (bucket/CDN/alarms) changes rarely
+      # and goes through plan/apply review; page content changes on every commit and shouldn't
+      # need a full terraform apply just to fix a typo.
+      - name: Write build-info.json
+        run: |
+          cat > site/build-info.json <<EOF
+          {
+            "commit": "${{ github.sha }}",
+            "deployed_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "run_number": "${{ github.run_number }}"
+          }
+          EOF
+
+      - name: Sync site content to S3
+        run: |
+          BUCKET=$(terraform output -raw site_bucket_name)
+          aws s3 sync ./site "s3://${BUCKET}" --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          DIST_ID=$(terraform output -raw cloudfront_distribution_id)
+          aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"

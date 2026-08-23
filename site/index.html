@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Static Site CI/CD + Monitoring — Portfolio Project</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Deployed by a CI/CD pipeline, not by hand.</h1>
+    <p>
+      This page is served from a private S3 bucket through CloudFront (OAC, HTTPS by default).
+      Every push to <code>main</code> runs <code>terraform fmt</code>, <code>validate</code>,
+      and <code>plan</code> in GitHub Actions; merges trigger <code>apply</code> plus a content
+      sync and a CloudFront cache invalidation.
+    </p>
+    <section id="build-info">
+      <h2>Last deployment v2</h2>
+      <p>Loading build info…</p>
+    </section>
+  </main>
+  <script>
+    fetch("build-info.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((info) => {
+        document.getElementById("build-info").innerHTML =
+          "<h2>Last deployment</h2>" +
+          "<p>Commit <code>" + info.commit + "</code> &middot; " +
+          "deployed " + info.deployed_at + " by GitHub Actions run #" + info.run_number + "</p>";
+      })
+      .catch(() => {
+        document.querySelector("#build-info p").textContent =
+          "build-info.json not found yet — this page was uploaded manually, not via the pipeline.";
+      });
+  </script>
+</body>
+</html>

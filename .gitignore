@@ -1,0 +1,23 @@
+node_modules/
+dist/
+coverage/
+*.log
+
+# Terraform
+# Note: .terraform.lock.hcl is intentionally NOT ignored — it's committed
+# so CI and everyone's local machine resolve the same provider versions.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
