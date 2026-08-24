@@ -35,6 +35,19 @@ flowchart TB
     cf -.metrics.-> cw --> sns --> email(["your inbox"])
 ```
 
+## Screenshots
+
+<img width="3024" height="1964" alt="image" src="https://github.com/user-attachments/assets/781be2a2-b24f-4a2c-b250-c4736a46f67b" />
+<img width="3010" height="1558" alt="image" src="https://github.com/user-attachments/assets/7c6c8c23-db90-4a6b-9074-c235ead7bbf9" />
+<img width="3018" height="996" alt="image" src="https://github.com/user-attachments/assets/33d52916-0c66-4180-9a63-a1aa0320eb2d" />
+<img width="3024" height="1218" alt="image" src="https://github.com/user-attachments/assets/6c148365-fd4d-4f2c-a469-e4bf11d07c91" />
+
+
+## Final Outcome
+
+<img width="2998" height="1810" alt="image" src="https://github.com/user-attachments/assets/67ecd9e1-b4ea-46cc-86c5-aba39f1a8af1" />
+
+
 ## What this demonstrates
 
 - **A real CI/CD pipeline for infrastructure**, not just app code — `fmt`/`validate`/`plan` on every push and PR, `apply` gated to `main`, remote state with locking so two runs can't corrupt each other.
