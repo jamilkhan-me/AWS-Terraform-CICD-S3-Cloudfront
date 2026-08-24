@@ -23,7 +23,7 @@ resource "aws_cloudfront_distribution" "site" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "s3-site"
     viewer_protocol_policy = "redirect-to-https" # free HTTPS via the default *.cloudfront.net cert
-    compress                = true
+    compress               = true
 
     forwarded_values {
       query_string = false
