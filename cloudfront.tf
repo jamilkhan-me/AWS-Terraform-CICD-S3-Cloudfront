@@ -5,6 +5,7 @@ resource "aws_cloudfront_origin_access_control" "site" {
   signing_protocol                  = "sigv4"
 }
 
+//Create Cloudfront
 resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   default_root_object = "index.html"
