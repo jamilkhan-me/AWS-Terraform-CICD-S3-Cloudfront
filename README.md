@@ -2,7 +2,7 @@
 
 A static site on S3 + CloudFront, deployed exclusively through a GitHub Actions pipeline that
 runs Terraform for infrastructure and syncs content separately — with CloudWatch alarms and an
-SNS topic watching it in production. This is the 
+SNS topic watching it in production.
 
 ## Architecture
 
