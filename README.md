@@ -2,8 +2,7 @@
 
 A static site on S3 + CloudFront, deployed exclusively through a GitHub Actions pipeline that
 runs Terraform for infrastructure and syncs content separately — with CloudWatch alarms and an
-SNS topic watching it in production. This is the project that shows you understand the "day 2"
-half of DevOps: how changes actually ship, and how you'd know if something broke.
+SNS topic watching it in production. This is the 
 
 ## Architecture
 
